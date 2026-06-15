@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inhale, Exhale</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <audio id="bg-music" src="assets/audio/music.mp3" loop></audio>
+
+    <canvas id="particles"></canvas>
+
+    <div class="wrapper">
+        <div id="trigger-core" class="trigger-box">
+            <div class="glow-ring"></div>
+            <div class="core-inside">
+                <span>Focus</span>
+            </div>
+            <p class="hint">Tap to release the stress</p>
+        </div>
+
+        <div id="main-card" class="glass-card hidden">
+            <div class="accent-line"></div>
+            <h1 class="title">Ты всё сможешь.</h1>
+            <p class="message">
+                Экзамен — это просто формальность. Твой интеллект, подготовка и выдержка гораздо выше этих листов с вопросами. Закрой глаза, сделай глубокий вдох. Я абсолютно уверен в твоем результате.
+            </p>
+            <div class="footer-note">Всё под контролем • Твой главный фанат</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
