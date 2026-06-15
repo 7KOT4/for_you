@@ -10,7 +10,6 @@
             --text-silver: #e2e8f0;
             --text-gold: #e6c687;
             --photo-glow: rgba(162, 122, 243, 0.4);
-            /* Цвета Telegram Dark */
             --tg-bg: #17212b;
             --tg-border: #101921;
         }
@@ -31,7 +30,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            perspective: 1200px; /* Увеличил глубину для мобилок */
+            perspective: 1000px;
         }
 
         .viewport-wrapper {
@@ -46,7 +45,7 @@
             z-index: 10;
         }
 
-        /* === УВЕДОМЛЕНИЕ В СТИЛЕ TELEGRAM === */
+        /* === TELEGRAM PUSH === */
         .tg-notification {
             position: absolute;
             top: -100px; 
@@ -73,7 +72,6 @@
             pointer-events: auto;
         }
 
-        /* Выделенная аватарка для автора сообщения */
         .tg-avatar {
             width: 42px;
             height: 42px;
@@ -131,12 +129,12 @@
 
         /* Премиальная Карточка */
         .premium-card {
-            background: rgba(13, 11, 18, 0.88); /* Сделал чуть темнее для лучшей читаемости */
+            background: rgba(13, 11, 18, 0.9);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 28px;
-            padding: 35px 25px;
+            padding: 25px 20px;
             width: 100%;
             box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255,255,255,0.05);
             text-align: center;
@@ -145,6 +143,9 @@
             transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
             visibility: hidden;
             position: absolute;
+            max-height: 95vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .premium-card.reveal {
@@ -157,24 +158,36 @@
             width: 30px;
             height: 1px;
             background: var(--text-gold);
-            margin: 0 auto 25px auto;
+            margin: 0 auto 15px auto;
             opacity: 0.6;
+            flex-shrink: 0;
         }
 
         .premium-card h1 {
             color: #ffffff;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 400;
             letter-spacing: 0.5px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            flex-shrink: 0;
+        }
+
+        .scroll-content {
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        
+        /* Скрытие скроллбара */
+        .scroll-content::-webkit-scrollbar {
+            width: 0px;
         }
 
         .premium-card p {
             color: var(--text-silver);
-            font-size: 15px;
-            line-height: 1.75;
+            font-size: 14px;
+            line-height: 1.65;
             font-weight: 300;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             text-align: justify;
         }
 
@@ -183,15 +196,51 @@
             font-weight: 400;
         }
 
+        /* === ИНЛАЙН СЛАЙДЕР ДЛЯ МОБИЛОК И КОМПОВ === */
+        .inline-slider {
+            width: 100%;
+            height: 160px;
+            margin: 15px 0 5px 0;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            flex-shrink: 0;
+        }
+
+        .slider-track {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .slide-img.active {
+            opacity: 1;
+        }
+
         .card-footer {
-            margin-top: 25px;
+            margin-top: 15px;
             font-size: 10px;
             letter-spacing: 2px;
             text-transform: uppercase;
             color: #5d5970;
+            flex-shrink: 0;
         }
 
-        /* Фон: Фото Вихрь (Сдвинут к краям экрана, чтобы не перекрывать текст) */
+        /* === ФОНОВЫЙ ВИХРЬ ДЛЯ КОМПОВ === */
         #photo-vortex {
             position: absolute;
             top: 0;
@@ -212,35 +261,35 @@
 
         .back-photo {
             position: absolute;
-            width: 110px; /* Слегка уменьшил размер, чтобы на мобилках было аккуратнее */
-            height: 110px;
+            width: 130px;
+            height: 130px;
             object-fit: cover;
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            filter: contrast(1.1) brightness(0.6) sepia(0.2); /* Притемнил фото на фоне, чтобы текст выделялся */
-            opacity: 0.5;
+            filter: contrast(1.1) brightness(0.5) sepia(0.2);
+            opacity: 0.4;
             animation: floatAndSpin linear infinite;
+            display: none; /* По умолчанию скрыты на мобилках */
         }
 
-        /* Разнёс траектории фото дальше по углам в 3D пространстве */
-        .back-photo:nth-child(1) { top: 15%; left: -5%; animation-duration: 25s; animation-delay: -2s; transform: translateZ(-250px); }
-        .back-photo:nth-child(2) { top: 10%; right: -5%; animation-duration: 30s; animation-delay: -5s; transform: translateZ(-200px); }
-        .back-photo:nth-child(3) { bottom: 12%; left: -8%; animation-duration: 28s; animation-delay: -10s; transform: translateZ(-350px); }
-        .back-photo:nth-child(4) { bottom: 8%; right: -8%; animation-duration: 22s; animation-delay: -15s; transform: translateZ(-150px); }
-        .back-photo:nth-child(5) { top: 45%; left: -15%; animation-duration: 35s; animation-delay: -20s; transform: translateZ(-450px); }
-
-        .back-photo.glow {
-            opacity: 0.9;
-            filter: contrast(1.2) brightness(1.0);
+        /* Показываем летающие фотки на фоне только если экран шире 1000px (компы) */
+        @media (min-width: 1000px) {
+            .back-photo {
+                display: block;
+            }
+            /* Отцентрованные и собранные координаты, чтобы не улетали за монитор */
+            .back-photo:nth-child(1) { top: 15%; left: 12%; animation-duration: 25s; }
+            .back-photo:nth-child(2) { top: 10%; right: 12%; animation-duration: 30s; }
+            .back-photo:nth-child(3) { bottom: 15%; left: 10%; animation-duration: 28s; }
+            .back-photo:nth-child(4) { bottom: 12%; right: 10%; animation-duration: 22s; }
+            .back-photo:nth-child(5) { top: 40%; left: 5%; animation-duration: 35s; }
         }
 
         @keyframes floatAndSpin {
-            0% { transform: translateZ(-350px) rotateY(0deg) translateY(0px); opacity: 0.4; }
-            25% { transform: translateZ(-150px) rotateY(90deg) translateY(-15px); opacity: 0.7; }
-            50% { transform: translateZ(-350px) rotateY(180deg) translateY(0px); opacity: 0.4; }
-            75% { transform: translateZ(-550px) rotateY(270deg) translateY(15px); opacity: 0.2; }
-            100% { transform: translateZ(-350px) rotateY(360deg) translateY(0px); opacity: 0.4; }
+            0% { transform: translateZ(-200px) rotateY(0deg); opacity: 0.4; }
+            50% { transform: translateZ(-50px) rotateY(180deg); opacity: 0.6; }
+            100% { transform: translateZ(-200px) rotateY(360deg); opacity: 0.4; }
         }
 
         .hidden {
@@ -310,9 +359,23 @@
         <div class="premium-card" id="cardPanel">
             <div class="accent-sep"></div>
             <h1>Сделай глубокий вдох</h1>
-            <p>Экзамен — это всего лишь структурированный набор листов бумаги и формальность, которая никак не определяет твой интеллект. Ты проделала огромный путь и прекрасно всё знаешь.</p>
-            <p>Твоя выдержка и ум справятся с любой задачей. Сосредоточься, не спеши. Я абсолютно уверен в твоей силе и буду ждать тебя с отличными новостями.</p>
-            <p>Ты готова. <strong>Всё получится.</strong></p>
+            
+            <div class="scroll-content">
+                <p>Экзамен — это всего лишь structured набор листов бумаги и формальность, которая никак не определяет твой интеллект. Ты проделала огромный путь и прекрасно всё знаешь.</p>
+                <p>Твоя выдержка и ум справятся с любой задачей. Сосредоточься, не спеши. Я абсолютно уверен в твоей силе и буду ждать тебя с отличными новостями.</p>
+                <p>Ты готова. <strong>Всё получится.</strong></p>
+            </div>
+
+            <div class="inline-slider">
+                <div class="slider-track">
+                    <img src="assets/images/back_photo1.jpg" alt="Slider 1" class="slide-img active">
+                    <img src="assets/images/back_photo2.jpg" alt="Slider 2" class="slide-img">
+                    <img src="assets/images/back_photo3.jpg" alt="Slider 3" class="slide-img">
+                    <img src="assets/images/back_photo4.jpg" alt="Slider 4" class="slide-img">
+                    <img src="assets/images/back_photo5.jpg" alt="Slider 5" class="slide-img">
+                </div>
+            </div>
+            
             <div class="card-footer">Твой главный болельщик • Фокус и покой</div>
         </div>
 
@@ -324,13 +387,23 @@
         const card = document.getElementById('cardPanel');
         const audio = document.getElementById('ambient-audio');
         const vortex = document.getElementById('photo-vortex');
-        const backPhotos = document.querySelectorAll('.back-photo');
         const tgPush = document.getElementById('tgPush');
+        const slides = document.querySelectorAll('.slide-img');
 
         let isRevealed = false;
         let pushTriggered = false;
+        let currentSlide = 0;
 
         audio.load();
+
+        // Логика слайдера
+        function startSlider() {
+            setInterval(() => {
+                slides[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % slides.length;
+                slides[currentSlide].classList.add('active');
+            }, 3000); // Смена фото каждые 3 секунды
+        }
 
         lavender.addEventListener('click', () => {
             if (isRevealed) return;
@@ -341,9 +414,8 @@
             const playPromise = audio.play();
             if (playPromise !== undefined) {
                 playPromise.then(() => {
-                    console.log("Музыка успешно запущена!");
+                    console.log("Музыка пошла!");
                 }).catch(error => {
-                    console.log("Интерфейс ожидает ручного тапа: ", error);
                     document.body.addEventListener('click', () => { audio.play(); }, { once: true });
                 });
             }
@@ -361,18 +433,14 @@
                 
                 card.classList.add('reveal');
                 vortex.classList.add('active');
-
-                setInterval(() => {
-                    const randomPhoto = backPhotos[Math.floor(Math.random() * backPhotos.length)];
-                    if(randomPhoto) {
-                        randomPhoto.classList.add('glow');
-                        setTimeout(() => randomPhoto.classList.remove('glow'), 2000);
-                    }
-                }, 3500);
+                
+                // Запускаем автоматическое листание фоток в карточке
+                startSlider();
 
             }, 600);
         });
 
+        // Пуш на 27-й секунде
         audio.addEventListener('timeupdate', () => {
             const currentTime = audio.currentTime;
 
