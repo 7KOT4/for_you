@@ -2,125 +2,295 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Всё Получится! ❤️</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Inhale, Exhale</title>
     <style>
-        /* Стили по умолчанию, чтобы всё не поехало */
-        body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; background: #000; }
-        .wrapper { text-align: center; color: white; font-family: sans-serif; position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;}
-        .lavender-trigger { width: 100px; cursor: pointer; transition: transform 0.3s ease; filter: drop-shadow(0 0 10px rgba(186, 153, 255, 0.5));}
-        .lavender-trigger:hover { transform: scale(1.1) rotate(5deg); filter: drop-shadow(0 0 20px rgba(186, 153, 255, 0.8));}
-        .content { opacity: 0; transform: translateY(20px); transition: opacity 1s ease, transform 1s ease; position: absolute; max-width: 600px; pointer-events: none;}
-        .content.show { opacity: 1; transform: translateY(0); pointer-events: auto;}
-        
-        /* Эффект плавающих частиц */
-        .particle { position: absolute; background: white; border-radius: 50%; opacity: 0.5; pointer-events: none;}
-        
-        /* Эффект мерцания звезд */
-        .stars { position: absolute; width: 1px; height: 1px; background: transparent; pointer-events: none;}
+        :root {
+            --bg-space: #06040a;
+            --lavender-glow: rgba(157, 112, 255, 0.15);
+            --text-silver: #e2e8f0;
+            --text-gold: #e6c687;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-space);
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Контейнер-оболочка с жесткой фиксацией под мобильные экраны */
+        .viewport-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 480px; /* Идеальный мобильный брейкпоинт */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 2;
+        }
+
+        /* Интерактивный триггер: Векторная Лаванда */
+        .lavender-btn {
+            width: 90px;
+            height: 160px;
+            cursor: pointer;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease;
+            animation: gentleSway 4s ease-in-out infinite;
+            filter: drop-shadow(0 0 15px rgba(162, 122, 243, 0.3));
+        }
+
+        .lavender-btn:active {
+            transform: scale(0.92) rotate(-5deg);
+        }
+
+        .hint-text {
+            position: absolute;
+            bottom: 30%;
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #635e75;
+            transition: opacity 0.4s ease;
+            animation: pulseText 2s infinite;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* Карточка с глубоким контрастом (Glassmorphic Dark) */
+        .premium-card {
+            background: rgba(13, 11, 18, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 28px;
+            padding: 35px 25px;
+            width: 100%;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255,255,255,0.05);
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px) scale(0.96);
+            transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+            visibility: hidden;
+            position: absolute;
+        }
+
+        .premium-card.reveal {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            visibility: visible;
+        }
+
+        .accent-sep {
+            width: 30px;
+            height: 1px;
+            background: var(--text-gold);
+            margin: 0 auto 25px auto;
+            opacity: 0.6;
+        }
+
+        /* Контрастная, читаемая типографика без пересвета */
+        .premium-card h1 {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+        }
+
+        .premium-card p {
+            color: var(--text-silver);
+            font-size: 15px;
+            line-height: 1.75;
+            font-weight: 300;
+            margin-bottom: 16px;
+            text-align: justify;
+            text-justify: inter-word;
+        }
+
+        .premium-card p strong {
+            color: var(--text-gold);
+            font-weight: 400;
+        }
+
+        .card-footer {
+            margin-top: 25px;
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #5d5970;
+        }
+
+        /* Задний план для JS частиц */
+        #space-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .hidden {
+            display: none !important;
+            opacity: 0 !important;
+        }
+
+        /* Тайминги плавной анимации */
+        @keyframes gentleSway {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(4deg) translateY(-2px); }
+        }
+
+        @keyframes pulseText {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
     </style>
 </head>
 <body>
 
-    <audio id="bgMusic" src="assets/music.mp3" loop></audio>
+    <audio id="ambient-audio" src="assets/music.mp3" loop></audio>
+    <canvas id="space-canvas"></canvas>
 
-    <div class="wrapper">
-        <img src="assets/lavender.png" alt="Нажми для поддержки" class="lavender-trigger" id="lavenderTrigger">
-
-        <div class="content" id="supportContent">
-            <h1>Всё Получится! ❤️</h1>
-            <p>Моя дорогая Мадам,</p>
-            <p>Ты — невероятно сильная и умная. Я знаю, как сильно ты старалась. Этот экзамен — всего лишь формальность, которую ты с лёгкостью преодолеешь. Твой интеллект и подготовка — твои главные помощники.</p>
-            <p>Я верю в тебя каждой клеточкой своего существа. Глубокий вдох, плавный выдох.</p>
-            <p>Ты готова. Ты сможешь!</p>
-            <p><strong>С любовью, Твой Главный Фанат</strong></p>
-        </div>
+    <div class="viewport-wrapper">
         
-        <div class="stars" id="stars"></div>
+        <div id="trigger-wrapper" style="display: flex; flex-direction: column; align-items: center;">
+            <svg class="lavender-btn" id="lavenderClick" viewBox="0 0 64 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M32 120V30" stroke="#4d543b" stroke-width="1.5" stroke-linecap="round"/>
+                <g fill="#9d70ff">
+                    <circle cx="32" cy="25" r="4" opacity="0.9"/>
+                    <circle cx="28" cy="35" r="5"/> <circle cx="36" cy="35" r="5"/>
+                    <circle cx="27" cy="48" r="5.5"/> <circle cx="37" cy="48" r="5.5"/>
+                    <circle cx="32" cy="42" r="4.5"/>
+                    <circle cx="26" cy="62" r="6"/> <circle cx="38" cy="62" r="6"/>
+                    <circle cx="32" cy="55" r="5"/>
+                    <circle cx="28" cy="75" r="5.5"/> <circle cx="36" cy="75" r="5.5"/>
+                    <circle cx="32" cy="69" r="4.5"/>
+                    <circle cx="32" cy="86" r="5"/>
+                </g>
+                <g fill="#c1a3ff">
+                    <circle cx="32" cy="24" r="2"/>
+                    <circle cx="29" cy="34" r="2.5"/> <circle cx="35" cy="33" r="2.5"/>
+                    <circle cx="28" cy="47" r="3"/> <circle cx="36" cy="47" r="3"/>
+                    <circle cx="27" cy="61" r="3"/> <circle cx="37" cy="61" r="3"/>
+                </g>
+                <path d="M32 90Q22 85 24 75Q28 82 32 86Z" fill="#3f4732"/>
+                <path d="M32 102Q42 97 40 87Q36 94 32 98Z" fill="#3f4732"/>
+            </svg>
+            <div class="hint-text" id="hint">Коснись ветки лаванды</div>
+        </div>
+
+        <div class="premium-card" id="cardPanel">
+            <div class="accent-sep"></div>
+            <h1>Сделай глубокий вдох</h1>
+            <p>Экзамен — это всего лишь структурированный набор листов бумаги и формальность, которая никак не определяет твой интеллект. Ты проделала огромный путь и прекрасно всё знаешь.</p>
+            <p>Твоя выдержка и ум справятся с любой задачей. Сосредоточься, не спеши. Я абсолютно уверен в твоей силе и буду ждать тебя с отличными новостями.</p>
+            <p>Ты готова. <strong>Всё получится.</strong></p>
+            <div class="card-footer">Твой главный болельщик • Фокус и покой</div>
+        </div>
+
     </div>
 
     <script>
-        const trigger = document.getElementById('lavenderTrigger');
-        const content = document.getElementById('supportContent');
-        const music = document.getElementById('bgMusic');
-        const starsContainer = document.getElementById('stars');
+        const canvas = document.getElementById('space-canvas');
+        const ctx = canvas.getContext('2d');
+        const lavender = document.getElementById('lavenderClick');
+        const hint = document.getElementById('hint');
+        const card = document.getElementById('cardPanel');
+        const audio = document.getElementById('ambient-audio');
 
-        // КЛИК НА ЛАВАНДУ
-        trigger.addEventListener('click', () => {
-            // Плавное исчезновение лаванды
-            trigger.style.opacity = '0';
-            trigger.style.pointerEvents = 'none';
-            trigger.style.transform = 'scale(0.8) translateY(-50px)';
+        let particles = [];
+        let isRevealed = false;
 
-            // Плавное появление текста
-            content.classList.add('show');
-            
-            // Запуск музыки (браузеры могут блокировать, если не было взаимодействия)
-            music.play().catch(error => {
-                console.log("Автозапуск музыки заблокирован браузером. Требуется ручной запуск, если это необходимо.");
-            });
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
 
-            // Добавляем фоновые эффекты в момент появления текста
-            addBackgroundEffects();
+        class AmbientParticle {
+            constructor() {
+                this.reset();
+                this.y = Math.random() * canvas.height; 
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + 20;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.speedY = Math.random() * 0.4 + 0.1;
+                this.alpha = Math.random() * 0.5 + 0.1;
+                this.oscillation = Math.random() * 0.02;
+                this.oscSpeed = Math.random() * 0.01;
+            }
+            update() {
+                this.y -= this.speedY;
+                this.x += Math.sin(this.y * this.oscillation) * 0.3;
+                if (this.y < -10) this.reset();
+            }
+            draw() {
+                ctx.fillStyle = `rgba(157, 112, 255, ${this.alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Плавный запуск фоновых частиц
+        function initBackground() {
+            for(let i=0; i<45; i++) {
+                particles.push(new AmbientParticle());
+            }
+            function loop() {
+                ctx.fillStyle = 'rgba(6, 4, 10, 0.2)'; // Эффект шлейфа (motion blur)
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => { p.update(); p.draw(); });
+                requestAnimationFrame(loop);
+            }
+            loop();
+        }
+        initBackground();
+
+        // Логика перехода
+        lavender.addEventListener('click', () => {
+            if (isRevealed) return;
+            isRevealed = true;
+
+            // Музыка
+            audio.play().catch(() => console.log("Плеер ожидает овнера"));
+
+            // Изменение фона на более глубокий градиент
+            document.body.style.transition = 'background 2.5s ease';
+            document.body.style.background = 'radial-gradient(circle at center, #110c1f 0%, #06040a 100%)';
+
+            // Исчезновение триггеров
+            lavender.style.opacity = '0';
+            lavender.style.transform = 'scale(0.7) translateY(-30px)';
+            hint.style.opacity = '0';
+
+            setTimeout(() => {
+                lavender.classList.add('hidden');
+                hint.classList.add('hidden');
+                
+                // Проявление карточки
+                card.classList.add('reveal');
+            }, 600);
         });
-
-        // ФУНКЦИЯ ДЛЯ ДОБАВЛЕНИЯ ЭФФЕКТОВ НА ФОН
-        function addBackgroundEffects() {
-            // 1. Плавное появление фонового градиента
-            document.body.style.transition = 'background 2s ease';
-            document.body.style.background = 'radial-gradient(circle, rgba(162,126,255,0.2) 0%, rgba(30,15,60,1) 100%)';
-
-            // 2. Создание плавающих частиц
-            createParticles(30);
-
-            // 3. Создание мерцающих звезд
-            createStars(100);
-        }
-
-        // Вспомогательная функция для частиц
-        function createParticles(num) {
-            for (let i = 0; i < num; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('particle');
-                
-                const size = Math.random() * 5 + 2;
-                particle.style.width = `${size}px`;
-                particle.style.height = `${size}px`;
-                
-                particle.style.left = `${Math.random() * 100}vw`;
-                particle.style.top = `${Math.random() * 100}vh`;
-                
-                const duration = Math.random() * 10 + 5;
-                particle.style.animation = `float ${duration}s linear infinite`;
-                
-                document.body.appendChild(particle);
-            }
-        }
-
-        // Вспомогательная функция для звезд
-        function createStars(num) {
-            let boxShadowValue = '';
-            for (let i = 0; i < num; i++) {
-                boxShadowValue += `${Math.random() * 100}vw ${Math.random() * 100}vh ${Math.random() * 2}px white, `;
-            }
-            starsContainer.style.boxShadow = boxShadowValue.slice(0, -2); // Удаляем последнюю запятую
-            starsContainer.style.animation = 'twinkle 4s infinite linear';
-        }
-
     </script>
-    
-    <style>
-        @keyframes float {
-            0% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.5; }
-            50% { transform: translateY(-50px) translateX(20px) rotate(180deg); opacity: 0.8; }
-            100% { transform: translateY(0px) translateX(0px) rotate(360deg); opacity: 0.5; }
-        }
-        
-        @keyframes twinkle {
-            0% { opacity: 0.3; }
-            50% { opacity: 1; }
-            100% { opacity: 0.3; }
-        }
-    </style>
 </body>
 </html>
