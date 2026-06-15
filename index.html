@@ -10,7 +10,9 @@
             --text-silver: #e2e8f0;
             --text-gold: #e6c687;
             --photo-glow: rgba(162, 122, 243, 0.4);
-            --ios-bg: rgba(25, 22, 33, 0.85);
+            /* Цвета Telegram Dark */
+            --tg-bg: #17212b;
+            --tg-border: #101921;
         }
 
         * {
@@ -44,74 +46,64 @@
             z-index: 10;
         }
 
-        /* === СТИЛЬНОЕ IOS УВЕДОМЛЕНИЕ === */
-        .ios-notification {
+        /* === УВЕДОМЛЕНИЕ В СТИЛЕ TELEGRAM === */
+        .tg-notification {
             position: absolute;
-            top: -120px; /* Спрятано выше экрана */
-            left: 20px;
-            right: 20px;
-            background: var(--ios-bg);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 22px;
-            padding: 16px;
+            top: -100px; 
+            left: 12px;
+            right: 12px;
+            background: var(--tg-bg);
+            border: 1px solid var(--tg-border);
+            border-radius: 14px;
+            padding: 12px 14px;
             display: flex;
-            align-items: flex-start;
-            gap: 14px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
             z-index: 100;
-            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0;
+            transform: translateY(0) scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease;
             pointer-events: none;
         }
 
-        /* Когда добавляем этот класс — пуш вылетает сверху */
-        .ios-notification.banner-show {
-            transform: translateY(145px); /* Настраивай высоту спуска тут */
+        /* Анимация появления как в ТГ */
+        .tg-notification.banner-show {
+            opacity: 1;
+            transform: translateY(120px) scale(1);
             pointer-events: auto;
         }
 
-        .notification-icon {
-            width: 38px;
-            height: 38px;
-            background: linear-gradient(135deg, #a27eff, #6f42c1);
-            border-radius: 9px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .tg-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
             flex-shrink: 0;
-            font-size: 18px;
-            box-shadow: 0 4px 10px rgba(162, 122, 243, 0.3);
         }
 
-        .notification-content {
+        .tg-body {
             flex-grow: 1;
+            overflow: hidden;
         }
 
-        .notification-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 3px;
-        }
-
-        .notification-title {
-            color: #ffffff;
+        .tg-sender {
+            color: #5288c1; /* Цвет имени в ТГ */
             font-size: 14px;
             font-weight: 600;
-            letter-spacing: -0.2px;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .notification-time {
-            color: #7c778f;
-            font-size: 11px;
-        }
-
-        .notification-text {
-            color: var(--text-silver);
+        .tg-text {
+            color: #f5f5f5;
             font-size: 13px;
-            line-height: 1.4;
-            font-weight: 400;
+            line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         /* Лаванда (Триггер) */
@@ -268,16 +260,13 @@
 </head>
 <body>
 
-    <audio id="ambient-audio" src="assets/audio/music.mp3" loop></audio>
+    <audio id="ambient-audio" src="assets/music.mp3" loop preload="auto"></audio>
 
-    <div class="ios-notification" id="iosPush">
-        <div class="notification-icon">💬</div>
-        <div class="notification-content">
-            <div class="notification-header">
-                <span class="notification-title">Сообщение</span>
-                <span class="notification-time">сейчас</span>
-            </div>
-            <p class="notification-text">Эй, просто напоминаю: ты лучшая. Заканчивай читать карточку и порви этот экзамен! Проверь телефон, когда выйдешь из кабинета. ❤️</p>
+    <div class="tg-notification" id="tgPush">
+        <img src="assets/images/back_photo1.jpg" alt="Avatar" class="tg-avatar">
+        <div class="tg-body">
+            <div class="tg-sender">Любимый</div>
+            <div class="tg-text">Ты самая лучшая, у тебя всё получится! ❤️</div>
         </div>
     </div>
 
@@ -335,17 +324,29 @@
         const audio = document.getElementById('ambient-audio');
         const vortex = document.getElementById('photo-vortex');
         const backPhotos = document.querySelectorAll('.back-photo');
-        const iosPush = document.getElementById('iosPush');
+        const tgPush = document.getElementById('tgPush');
 
         let isRevealed = false;
         let pushTriggered = false;
+
+        audio.load();
 
         // Появление лаванды и карточки
         lavender.addEventListener('click', () => {
             if (isRevealed) return;
             isRevealed = true;
 
-            audio.play().catch(() => console.log("Блокировка аудио снята"));
+            audio.muted = false;
+            
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log("Музыка успешно запущена!");
+                }).catch(error => {
+                    console.log("Браузер придержал автозвук: ", error);
+                    document.body.addEventListener('click', () => { audio.play(); }, { once: true });
+                });
+            }
 
             document.body.style.transition = 'background 2.5s ease';
             document.body.style.background = 'radial-gradient(circle at center, #110c1f 0%, #06040a 100%)';
@@ -363,30 +364,30 @@
 
                 setInterval(() => {
                     const randomPhoto = backPhotos[Math.floor(Math.random() * backPhotos.length)];
-                    randomPhoto.classList.add('glow');
-                    setTimeout(() => randomPhoto.classList.remove('glow'), 2000);
+                    if(randomPhoto) {
+                        randomPhoto.classList.add('glow');
+                        setTimeout(() => randomPhoto.classList.remove('glow'), 2000);
+                    }
                 }, 3500);
 
             }, 600);
         });
 
-        // === ДИНАМИЧЕСКИЙ ТАЙМИНГ ДЛЯ IOS ПУША ===
+        // ТРЕКИНГ ВРЕМЕНИ ДЛЯ ТГ-ПУША (срабатывает ровно на 27-й секунде)
         audio.addEventListener('timeupdate', () => {
             const currentTime = audio.currentTime;
 
-            // На 27-й секунде выкатываем уведомление
             if (currentTime >= 27 && currentTime < 37) {
                 if (!pushTriggered) {
-                    iosPush.classList.add('banner-show');
+                    tgPush.classList.add('banner-show');
                     pushTriggered = true;
                 }
             }
             
-            // На 37-й секунде (или в конце трека) прячем уведомление назад
             if (currentTime >= 37 || currentTime < 1) {
                 if (pushTriggered) {
-                    iosPush.classList.remove('banner-show');
-                    pushTriggered = false; // Сбрасываем флаг, чтобы на следующем круге loop сработало заново
+                    tgPush.classList.remove('banner-show');
+                    pushTriggered = false; 
                 }
             }
         });
