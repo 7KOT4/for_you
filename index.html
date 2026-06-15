@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Inhale, Exhale</title>
+    <title>Memory Vortex</title>
     <style>
         :root {
             --bg-space: #06040a;
-            --lavender-glow: rgba(157, 112, 255, 0.15);
             --text-silver: #e2e8f0;
             --text-gold: #e6c687;
+            --photo-glow: rgba(162, 122, 243, 0.4);
         }
 
         * {
@@ -28,22 +28,22 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            perspective: 1000px; /* Важно для 3D */
         }
 
-        /* Контейнер-оболочка с жесткой фиксацией под мобильные экраны */
         .viewport-wrapper {
             position: relative;
             width: 100%;
             height: 100%;
-            max-width: 480px; /* Идеальный мобильный брейкпоинт */
+            max-width: 420px;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            z-index: 2;
+            z-index: 10; /* Выше фона */
         }
 
-        /* Интерактивный триггер: Векторная Лаванда */
+        /* Интерактивная Лаванда */
         .lavender-btn {
             width: 90px;
             height: 160px;
@@ -51,10 +51,6 @@
             transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease;
             animation: gentleSway 4s ease-in-out infinite;
             filter: drop-shadow(0 0 15px rgba(162, 122, 243, 0.3));
-        }
-
-        .lavender-btn:active {
-            transform: scale(0.92) rotate(-5deg);
         }
 
         .hint-text {
@@ -70,11 +66,11 @@
             width: 100%;
         }
 
-        /* Карточка с глубоким контрастом (Glassmorphic Dark) */
+        /* Премиальная Карточка */
         .premium-card {
-            background: rgba(13, 11, 18, 0.75);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: rgba(13, 11, 18, 0.85);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 28px;
             padding: 35px 25px;
@@ -102,7 +98,6 @@
             opacity: 0.6;
         }
 
-        /* Контрастная, читаемая типографика без пересвета */
         .premium-card h1 {
             color: #ffffff;
             font-size: 24px;
@@ -118,7 +113,6 @@
             font-weight: 300;
             margin-bottom: 16px;
             text-align: justify;
-            text-justify: inter-word;
         }
 
         .premium-card p strong {
@@ -134,8 +128,8 @@
             color: #5d5970;
         }
 
-        /* Задний план для JS частиц */
-        #space-canvas {
+        /* === ФОНОВЫЙ ВИХРЬ ИЗ 5 ФОТО === */
+        #photo-vortex {
             position: absolute;
             top: 0;
             left: 0;
@@ -143,6 +137,105 @@
             height: 100%;
             z-index: 1;
             pointer-events: none;
+            visibility: hidden; /* Скрыт до клика */
+            opacity: 0;
+            transition: opacity 2s ease, visibility 2s ease;
+        }
+
+        #photo-vortex.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .back-photo {
+            position: absolute;
+            width: 140px; /* Размер фото на фоне */
+            height: 140px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            filter: contrast(1.1) brightness(0.8) sepia(0.2); /* Стилизация */
+            opacity: 0.6; /* Полупрозрачность */
+            animation: floatAndSpin linear infinite;
+        }
+
+        /* Свечение при приближении */
+        .back-photo:before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border-radius: 12px;
+            box-shadow: 0 0 20px var(--photo-glow);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        /* === НАСТРОЙКА АНИМАЦИИ ДЛЯ КАЖДОГО ФОТО (Траектории) === */
+        /* Фото 1: Медленно вращается в центре */
+        .back-photo:nth-child(1) {
+            top: 20%; left: 10%;
+            animation-duration: 25s;
+            animation-delay: -2s;
+            transform: translateZ(-200px) rotateY(0deg);
+        }
+        /* Фото 2: Плавает справа сверху */
+        .back-photo:nth-child(2) {
+            top: 10%; right: 10%;
+            animation-duration: 30s;
+            animation-delay: -5s;
+            transform: translateZ(-150px) rotateX(10deg);
+        }
+        /* Фото 3: Глубоко слева снизу */
+        .back-photo:nth-child(3) {
+            bottom: 15%; left: 15%;
+            animation-duration: 28s;
+            animation-delay: -10s;
+            transform: translateZ(-300px) rotateY(-15deg);
+        }
+        /* Фото 4: Ближе всего справа снизу */
+        .back-photo:nth-child(4) {
+            bottom: 10%; right: 5%;
+            animation-duration: 22s;
+            animation-delay: -15s;
+            transform: translateZ(-100px) rotateX(-5deg);
+        }
+        /* Фото 5: По центру снизу, глубоко */
+        .back-photo:nth-child(5) {
+            bottom: 50%; left: 50%;
+            margin-left: -70px; /* Центрирование */
+            animation-duration: 35s;
+            animation-delay: -20s;
+            transform: translateZ(-400px) rotateY(20deg);
+        }
+
+        .back-photo.glow {
+            opacity: 1;
+            filter: contrast(1.2) brightness(1.1);
+        }
+
+        /* === КЛЮЧЕВЫЕ КАДРЫ 3D ВРАЩЕНИЯ === */
+        @keyframes floatAndSpin {
+            0% {
+                transform: translateZ(-300px) rotateY(0deg) rotateX(0deg) translateY(0px);
+                opacity: 0.5;
+            }
+            25% {
+                transform: translateZ(-100px) rotateY(90deg) rotateX(10deg) translateY(-20px);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateZ(-300px) rotateY(180deg) rotateX(0deg) translateY(0px);
+                opacity: 0.5;
+            }
+            75% {
+                transform: translateZ(-500px) rotateY(270deg) rotateX(-10deg) translateY(20px);
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateZ(-300px) rotateY(360deg) rotateX(0deg) translateY(0px);
+                opacity: 0.5;
+            }
         }
 
         .hidden {
@@ -150,7 +243,6 @@
             opacity: 0 !important;
         }
 
-        /* Тайминги плавной анимации */
         @keyframes gentleSway {
             0%, 100% { transform: rotate(0deg); }
             50% { transform: rotate(4deg) translateY(-2px); }
@@ -164,8 +256,15 @@
 </head>
 <body>
 
-    <audio id="ambient-audio" src="assets/music.mp3" loop></audio>
-    <canvas id="space-canvas"></canvas>
+    <audio id="ambient-audio" src="assets/audio/music.mp3" loop></audio>
+
+    <div id="photo-vortex">
+        <img src="assets/images/back_photo1.jpg" alt="Memory 1" class="back-photo">
+        <img src="assets/images/back_photo2.jpg" alt="Memory 2" class="back-photo">
+        <img src="assets/images/back_photo3.jpg" alt="Memory 3" class="back-photo">
+        <img src="assets/images/back_photo4.jpg" alt="Memory 4" class="back-photo">
+        <img src="assets/images/back_photo5.jpg" alt="Memory 5" class="back-photo">
+    </div>
 
     <div class="viewport-wrapper">
         
@@ -207,78 +306,28 @@
     </div>
 
     <script>
-        const canvas = document.getElementById('space-canvas');
-        const ctx = canvas.getContext('2d');
         const lavender = document.getElementById('lavenderClick');
         const hint = document.getElementById('hint');
         const card = document.getElementById('cardPanel');
         const audio = document.getElementById('ambient-audio');
+        const vortex = document.getElementById('photo-vortex');
+        const backPhotos = document.querySelectorAll('.back-photo');
 
-        let particles = [];
         let isRevealed = false;
 
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resize);
-        resize();
-
-        class AmbientParticle {
-            constructor() {
-                this.reset();
-                this.y = Math.random() * canvas.height; 
-            }
-            reset() {
-                this.x = Math.random() * canvas.width;
-                this.y = canvas.height + 20;
-                this.size = Math.random() * 1.5 + 0.5;
-                this.speedY = Math.random() * 0.4 + 0.1;
-                this.alpha = Math.random() * 0.5 + 0.1;
-                this.oscillation = Math.random() * 0.02;
-                this.oscSpeed = Math.random() * 0.01;
-            }
-            update() {
-                this.y -= this.speedY;
-                this.x += Math.sin(this.y * this.oscillation) * 0.3;
-                if (this.y < -10) this.reset();
-            }
-            draw() {
-                ctx.fillStyle = `rgba(157, 112, 255, ${this.alpha})`;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        // Плавный запуск фоновых частиц
-        function initBackground() {
-            for(let i=0; i<45; i++) {
-                particles.push(new AmbientParticle());
-            }
-            function loop() {
-                ctx.fillStyle = 'rgba(6, 4, 10, 0.2)'; // Эффект шлейфа (motion blur)
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                particles.forEach(p => { p.update(); p.draw(); });
-                requestAnimationFrame(loop);
-            }
-            loop();
-        }
-        initBackground();
-
-        // Логика перехода
+        // Переход по клику
         lavender.addEventListener('click', () => {
             if (isRevealed) return;
             isRevealed = true;
 
-            // Музыка
-            audio.play().catch(() => console.log("Плеер ожидает овнера"));
+            // Воспроизведение трека
+            audio.play().catch(() => console.log("Браузер заблокировал автоплей"));
 
-            // Изменение фона на более глубокий градиент
+            // Глубокий градиент на фон
             document.body.style.transition = 'background 2.5s ease';
             document.body.style.background = 'radial-gradient(circle at center, #110c1f 0%, #06040a 100%)';
 
-            // Исчезновение триггеров
+            // Анимация исчезновения лаванды
             lavender.style.opacity = '0';
             lavender.style.transform = 'scale(0.7) translateY(-30px)';
             hint.style.opacity = '0';
@@ -287,8 +336,17 @@
                 lavender.classList.add('hidden');
                 hint.classList.add('hidden');
                 
-                // Проявление карточки
+                // Проявление карточки и запуск вихря фото
                 card.classList.add('reveal');
+                vortex.classList.add('active');
+
+                // Добавляем эффект случайного "свечения" для фото на фоне
+                setInterval(() => {
+                    const randomPhoto = backPhotos[Math.floor(Math.random() * backPhotos.length)];
+                    randomPhoto.classList.add('glow');
+                    setTimeout(() => randomPhoto.classList.remove('glow'), 2000);
+                }, 3500);
+
             }, 600);
         });
     </script>
